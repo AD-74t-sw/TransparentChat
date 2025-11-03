@@ -78,7 +78,7 @@ def call_gemini(prompt_text: str) -> str:
         raise RuntimeError("GEMINI_API_KEY is not defined in environment.")
     
     debug_print("[DEBUG] Sending prompt to Gemini...")
-    debug_print(f"[DEBUG] Prompt (first 200 chars): {prompt_text[:500]}...")
+    debug_print(f"[DEBUG] Prompt (first 200 chars): {prompt_text[:200]}...")
     
     try:
         response = client.models.generate_content(
