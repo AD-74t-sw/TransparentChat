@@ -1,0 +1,12 @@
+# Ignore environment variable files
+.env
+
+# Virtual environment
+venv
+.venv
+
+# Ignore Python cache files
+__pycache__/
+
+# Prompt base
+prompt_base_final.json
