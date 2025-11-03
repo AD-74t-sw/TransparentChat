@@ -272,7 +272,7 @@ Press `Ctrl+Shift+D+1` → Generated Stata code is copied to clipboard
 
 **Clipboard content:**
 ```
-¿Qué es la economía positiva y cómo se diferencia de la economía normativa?
+What is positive economics and how does it differ from normative economics?
 ```
 
 Press `Ctrl+Shift+D+2` → Generated text answer is copied to clipboard
