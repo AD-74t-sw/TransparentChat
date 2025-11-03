@@ -20,6 +20,7 @@ API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 TXT_HOTKEY_COMBINATION = os.environ.get("TXT_HOTKEY_COMBINATION", "ctrl+shift+o")
 DIRECT_HOTKEY_COMBINATION = os.environ.get("DIRECT_HOTKEY_COMBINATION", "ctrl+shift+d+")
+EXIT_HOTKEY_COMBINATION = os.environ.get("EXIT_HOTKEY_COMBINATION", "ctrl+shift+q")
 DEBUG = os.environ.get("DEBUG", "false").lower() in ("true", "1", "yes")
 VERBOSE = os.environ.get("VERBOSE", "true").lower() in ("true", "1", "yes")
 
@@ -57,9 +58,7 @@ def build_full_prompt(file_content: str, prompt_bases: dict) -> str:
         raise ValueError(f"Prompt base with ID {prompt_id} not found")
     
     base_content = prompt_bases[prompt_id]
-
     user_content = '\n'.join(lines[1:]).strip()
-
     full_prompt = base_content + user_content
     
     return full_prompt
@@ -160,6 +159,11 @@ def handle_direct_action(prompt_id: int):
         debug_print(f"[DEBUG] ERROR: {type(e).__name__}: {str(e)}")
         verbose_print(f"✗ Error: {str(e)}")
 
+def exit_program():
+    debug_print("[DEBUG] Exit hotkey pressed")
+    verbose_print("\nProgram terminated by user.")
+    os._exit(0)
+
 def main():
     debug_print(f"[DEBUG] DEBUG mode enabled")
     debug_print(f"[DEBUG] Base prompt file: {PROMPT_BASE_PATH}")
@@ -168,8 +172,10 @@ def main():
     
     verbose_print(f"Press {TXT_HOTKEY_COMBINATION.upper()} to activate Gemini action from file.")
     verbose_print(f"Press {DIRECT_HOTKEY_COMBINATION.upper()}[prompt base ID] to activate Gemini from clipboard.")
+    verbose_print(f"Press {EXIT_HOTKEY_COMBINATION.upper()} to exit the program.")
 
     keyboard.add_hotkey(TXT_HOTKEY_COMBINATION, lambda: threading.Thread(target=handle_action, daemon=True).start())
+    keyboard.add_hotkey(EXIT_HOTKEY_COMBINATION, exit_program)
     
     if DIRECT_HOTKEY_COMBINATION:
         prompt_bases = load_prompt_base()

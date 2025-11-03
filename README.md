@@ -82,10 +82,16 @@ A hotkey-activated AI assistant that integrates Google Gemini API with customiza
    # Hotkey configuration
    TXT_HOTKEY_COMBINATION=ctrl+shift+o
    DIRECT_HOTKEY_COMBINATION=ctrl+shift+d+
+   EXIT_HOTKEY_COMBINATION=ctrl+shift+q
 
-   # Logging configuration
-   DEBUG=false
-   VERBOSE=true
+   # Debug mode (detailed logs)
+   DEBUG=True 
+
+   # Verbose mode (main prints)
+   VERBOSE=True
+
+   # Show console window
+   SHOW_CONSOLE=False
    ```
 
 5. **Run the application**
@@ -116,6 +122,14 @@ A hotkey-activated AI assistant that integrates Google Gemini API with customiza
 1. Copy your specific question or details to the clipboard
 
 2. Press the hotkey combination defined in `DIRECT_HOTKEY_COMBINATION` followed by the prompt base ID digit (e.g., `Ctrl+Shift+D+1`). The final digit corresponds to a prompt base ID from [`prompt_base.json`](prompt_base.json).
+
+### Exiting the Program
+
+When running without console (`SHOW_CONSOLE=false`), press the hotkey combination defined in `EXIT_HOTKEY_COMBINATION` (default: `Ctrl+Shift+Q`) to exit the program.
+
+You can also:
+- Open Task Manager (`Ctrl+Shift+Esc`) and end the `pythonw.exe` or `python.exe` process
+- Restart your computer
 
 ### Base Prompts
 
@@ -162,8 +176,10 @@ Edit [`prompt_base.json`](prompt_base.json) to define reusable prompt templates:
 | `PROMPT_NAME` | Name of the prompt file | - | ✅ Yes (for file mode) |
 | `TXT_HOTKEY_COMBINATION` | Keyboard shortcut for file-based prompts | `ctrl+shift+o` | No |
 | `DIRECT_HOTKEY_COMBINATION` | Base keyboard shortcut for clipboard prompts | `ctrl+shift+d+` | No |
+| `EXIT_HOTKEY_COMBINATION` | Keyboard shortcut to exit the program | `ctrl+shift+q` | No |
 | `DEBUG` | Enable detailed debug logging | `false` | No |
 | `VERBOSE` | Enable user-facing messages | `true` | No |
+| `SHOW_CONSOLE` | Show console window when running | `true` | No |
 
 ### Logging Modes
 
@@ -171,6 +187,8 @@ Edit [`prompt_base.json`](prompt_base.json) to define reusable prompt templates:
 - **`VERBOSE=true, DEBUG=true`** (Development): Shows all messages including technical details
 - **`VERBOSE=false, DEBUG=false`** (Silent): Minimal output, only critical errors
 - **`VERBOSE=false, DEBUG=true`**: Debug messages only when verbose is enabled
+
+**Note:** When `SHOW_CONSOLE=false`, the program runs in the background without a visible console window. In this mode, `VERBOSE` and `DEBUG` prints will not be visible. Set `SHOW_CONSOLE=true` to see console output.
 
 ### Hotkey Combinations
 
