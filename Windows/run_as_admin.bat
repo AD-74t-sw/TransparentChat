@@ -3,7 +3,7 @@
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 if '%errorlevel%' NEQ '0' (
-    echo Solicitando permisos de administrador...
+    if /i "%VERBOSE%"=="True" echo Requesting administrator permissions...
     goto UACPrompt
 ) else ( goto gotAdmin )
 
@@ -19,14 +19,20 @@ if '%errorlevel%' NEQ '0' (
     CD /D "%~dp0"
 
 :run
-    echo Ejecutando script con permisos de administrador...
     cd ..
+    
+    REM Load VERBOSE from .env file
+    if exist ".env" (
+        for /f "tokens=1,2 delims==" %%a in ('findstr /i "^VERBOSE=" .env') do set %%a=%%b
+    )
+    
+    if /i "%VERBOSE%"=="True" echo Running script with administrator permissions...
     
     if exist ".venv\Scripts\activate.bat" (
         call .venv\Scripts\activate.bat
-        echo Entorno virtual activado.
+        if /i "%VERBOSE%"=="True" echo Virtual environment activated.
     ) else (
-        echo ADVERTENCIA: No se encontro el entorno virtual en .venv
+        if /i "%VERBOSE%"=="True" echo WARNING: Virtual environment not found in .venv
     )
     
     python -m Windows.main

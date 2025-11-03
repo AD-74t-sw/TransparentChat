@@ -18,13 +18,19 @@ PROMPT_PATH = os.environ.get("PROMPT_PATH") + os.environ.get("PROMPT_NAME")
 PROMPT_BASE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompt_base.json")
 API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
-HOTKEY_COMBINATION = os.environ.get("HOTKEY_COMBINATION", "ctrl+shift+o")
+TXT_HOTKEY_COMBINATION = os.environ.get("TXT_HOTKEY_COMBINATION", "ctrl+shift+o")
+DIRECT_HOTKEY_COMBINATION = os.environ.get("DIRECT_HOTKEY_COMBINATION", "ctrl+shift+d+")
 DEBUG = os.environ.get("DEBUG", "false").lower() in ("true", "1", "yes")
+VERBOSE = os.environ.get("VERBOSE", "true").lower() in ("true", "1", "yes")
 
 client = genai.Client(api_key=API_KEY)
 
 def debug_print(message: str):
-    if DEBUG:
+    if DEBUG and VERBOSE:
+        print(message)
+
+def verbose_print(message: str):
+    if VERBOSE:
         print(message)
 
 def load_prompt_base() -> dict:
@@ -58,6 +64,15 @@ def build_full_prompt(file_content: str, prompt_bases: dict) -> str:
     
     return full_prompt
 
+def build_direct_prompt(clipboard_content: str, prompt_id: int, prompt_bases: dict) -> str:
+    if prompt_id not in prompt_bases:
+        raise ValueError(f"Prompt base with ID {prompt_id} not found")
+    
+    base_content = prompt_bases[prompt_id]
+    full_prompt = base_content + clipboard_content.strip()
+    
+    return full_prompt
+
 def call_gemini(prompt_text: str) -> str:
     if not API_KEY:
         raise RuntimeError("GEMINI_API_KEY is not defined in environment.")
@@ -81,7 +96,7 @@ def call_gemini(prompt_text: str) -> str:
 
 def handle_action():
     try:
-        debug_print(f"\n[DEBUG] Hotkey {HOTKEY_COMBINATION.upper()} detected!")
+        debug_print(f"\n[DEBUG] Hotkey {TXT_HOTKEY_COMBINATION.upper()} detected!")
         
         prompt_bases = load_prompt_base()
         if not prompt_bases:
@@ -110,26 +125,70 @@ def handle_action():
         result = call_gemini(full_prompt)
         
         pyperclip.copy(result)
-        debug_print("[DEBUG] ✓ Response copied to clipboard")
+        verbose_print("✓ Response copied to clipboard")
         
     except Exception as e:
         debug_print(f"[DEBUG] ERROR: {type(e).__name__}: {str(e)}")
+        verbose_print(f"✗ Error: {str(e)}")
+
+def handle_direct_action(prompt_id: int):
+    try:
+        debug_print(f"\n[DEBUG] Direct hotkey detected for prompt ID {prompt_id}!")
+        
+        prompt_bases = load_prompt_base()
+        if not prompt_bases:
+            debug_print("[DEBUG] ERROR: Could not load base prompts")
+            return
+        
+        clipboard_content = pyperclip.paste()
+        
+        if not clipboard_content.strip():
+            debug_print("[DEBUG] ERROR: Clipboard is empty")
+            return
+        
+        debug_print(f"[DEBUG] Clipboard content read ({len(clipboard_content)} characters)")
+        
+        full_prompt = build_direct_prompt(clipboard_content, prompt_id, prompt_bases)
+        debug_print(f"[DEBUG] Full prompt built ({len(full_prompt)} characters)")
+        
+        result = call_gemini(full_prompt)
+        
+        pyperclip.copy(result)
+        verbose_print("✓ Response copied to clipboard")
+        
+    except Exception as e:
+        debug_print(f"[DEBUG] ERROR: {type(e).__name__}: {str(e)}")
+        verbose_print(f"✗ Error: {str(e)}")
 
 def main():
     debug_print(f"[DEBUG] DEBUG mode enabled")
     debug_print(f"[DEBUG] Base prompt file: {PROMPT_BASE_PATH}")
     debug_print(f"[DEBUG] Prompt file: {PROMPT_PATH}")
-    debug_print(f"[DEBUG] Hotkey combination: {HOTKEY_COMBINATION}")
-    print(f"Press {HOTKEY_COMBINATION.upper()} to activate Gemini action.")
-    keyboard.add_hotkey(HOTKEY_COMBINATION, lambda: threading.Thread(target=handle_action, daemon=True).start())
-    print("Listening for hotkeys... (Press Ctrl+C to exit)")
+    debug_print(f"[DEBUG] Hotkey combination: {TXT_HOTKEY_COMBINATION}")
+    
+    verbose_print(f"Press {TXT_HOTKEY_COMBINATION.upper()} to activate Gemini action from file.")
+    verbose_print(f"Press {DIRECT_HOTKEY_COMBINATION.upper()}[prompt base ID] to activate Gemini from clipboard.")
+
+    keyboard.add_hotkey(TXT_HOTKEY_COMBINATION, lambda: threading.Thread(target=handle_action, daemon=True).start())
+    
+    if DIRECT_HOTKEY_COMBINATION:
+        prompt_bases = load_prompt_base()
+        
+        for prompt_id in prompt_bases.keys():
+            hotkey = f"{DIRECT_HOTKEY_COMBINATION}{prompt_id}"
+            keyboard.add_hotkey(
+                hotkey, 
+                lambda pid=prompt_id: threading.Thread(target=handle_direct_action, args=(pid,), daemon=True).start()
+            )
+            debug_print(f"[DEBUG] Registered hotkey: {hotkey}")
+    
+    verbose_print("Listening for hotkeys... (Press Ctrl+C to exit)")
     
     try:
         while True:
             time.sleep(0.1)
     except KeyboardInterrupt:
-        print("\nProgram terminated.")
+        verbose_print("\nProgram terminated.")
 
 if __name__ == "__main__":
     main()
-    
