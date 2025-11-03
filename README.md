@@ -85,13 +85,13 @@ A hotkey-activated AI assistant that integrates Google Gemini API with customiza
    EXIT_HOTKEY_COMBINATION=ctrl+shift+q
 
    # Debug mode (detailed logs)
-   DEBUG=True 
+   DEBUG=False
 
    # Verbose mode (main prints)
    VERBOSE=True
 
    # Show console window
-   SHOW_CONSOLE=False
+   SHOW_CONSOLE=True
    ```
 
 5. **Run the application**
