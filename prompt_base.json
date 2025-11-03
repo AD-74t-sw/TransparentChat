@@ -1,12 +1,12 @@
 [
     {
         "id": 1,
-        "name": "Stata code question",
-        "content": "Necesito que me ayudes a escribir un script en Stata (archivo .do) según las caracteristicas que te entregaré más adelante. Solo respondeme con el script, nada de explicaciones ni comentarios. Es muy importante que NO hayan comentarios en el código y que hagas el código lo más corto y simple que puedas.\nCaracterísticas del problema:\n"
+        "name": "Python code question",
+        "content": "Help me write a Python script (.py file) based on the characteristics I'll provide. Only respond with the script, no explanations or comments.\nProblem characteristics:\n"
     },
     {
         "id": 2,
         "name": "Development question",
-        "content": "Necesito que me entregues una respuesta de desarrollo (texto) según la pregunta y los datos que te entregaré más adelante. Solo respondeme con el texto, nada de código ni explicaciones adicionales.\nPregunta:\n"
+        "content": "Provide a text-based answer to the question and data I'll provide. Only respond with text, no code or additional explanations.\nQuestion:\n"
     }
 ]
